@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLASHCARDS — Musculoskeletal Master Deck</title>
+  <style>
+    :root {
+      --accent: #2563eb;
+      --light-blue: #e0ecff;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    *{box-sizing:border-box}
+    body {
+      font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f8ff;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header { text-align: center; margin-bottom: 16px; }
+    header h1 { color: var(--accent); margin: 0 0 6px 0; }
+    header p { color: var(--muted); margin: 0; }
+
+    .video-container {
+      width: 100%; max-width: 980px; background: var(--card-bg); box-shadow: var(--shadow); border-radius: 12px; padding: 12px; margin-top:12px; margin-bottom:18px;
+    }
+    .video-top { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .video-top .label { font-weight:800; color:var(--accent); }
+    .video-top button { padding:6px 10px; border-radius:8px; border:0; cursor:pointer; background:linear-gradient(135deg,#fff,#f8fafc); color:var(--accent); border:1px solid #e6f0ff; }
+    .video-frame { margin-top:10px; }
+    .video-frame iframe{ width:100%; height:320px; border-radius:10px; border:0; }
+
+    .flashcard { display:flex; align-items:stretch; background:var(--card-bg); box-shadow:var(--shadow); border-radius:16px; width:980px; max-width:95%; min-height:260px; overflow:hidden; }
+    .flashcard .image { width:40%; min-width:260px; background:var(--light-blue); display:flex; align-items:center; justify-content:center; }
+    .flashcard .image img{ width:100%; height:100%; object-fit:cover; }
+    .flashcard .content { flex:1; padding:22px; display:flex; flex-direction:column; justify-content:center; }
+    .card-title { font-weight:800; color:var(--accent); margin:0 0 12px 0; }
+    .answer-box { border-radius:10px; background:#fbfeff; border:1px solid #eaf4ff; padding:14px; box-shadow: inset 0 1px 4px rgba(37,99,235,0.03); }
+    .answer-box strong{ color:var(--accent); }
+    .answer-box em{ display:block; margin-top:8px; color:var(--muted); }
+    .answer-box hr{ border:0; border-top:1px solid #eef6ff; margin:12px 0; }
+
+    .controls { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; width:980px; max-width:95%; }
+    .nav-left{ display:flex; gap:10px; }
+    .btn { padding:10px 14px; border-radius:10px; border:0; cursor:pointer; background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; font-weight:800; }
+    .btn.secondary{ background:#fff; color:var(--accent); border:1px solid #e6f0ff; }
+
+    .progress-wrap{ display:flex; align-items:center; gap:12px; color:var(--muted); }
+    .progress-bg{ width:240px; height:10px; background:#e6f9ff; border-radius:999px; overflow:hidden; }
+    .progress-fill{ height:100%; width:0; background:linear-gradient(90deg,#60a5fa,#2b6cf6); transition:width .3s ease; }
+
+    footer{ margin-top:20px; color:var(--muted); }
+
+    @media(max-width:960px){ .flashcard{ flex-direction:column; } .flashcard .image{ width:100%; height:200px; min-width:100%; } .controls{ flex-direction:column; gap:8px; align-items:stretch; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FLASHCARDS — Musculoskeletal Master Deck</h1>
+    <p>Image (left) • Bilingual answer & explanation (right). Use Prev / Next to navigate. Replace image URLs manually where indicated.</p>
+  </header>
+
+  <div class="video-container">
+    <div class="video-top">
+      <div class="label"><i style="margin-right:6px">🎬</i> Lesson Video (placeholder)</div>
+      <div><button id="toggleVideoBtn" class="secondary">🎬 Hide Video</button></div>
+    </div>
+    <div class="video-frame" id="videoFrame">
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/dbYTQAW_kNw?si=T-ylAiBbEXilQj_J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <div class="flashcard" id="flashcard">
+    <div class="image" id="cardImageWrap">
+      <img id="cardImage" src="https://pixabay.com/photos/muscle-anatomy-human-body-fitness-3055660/" alt="card image">
+    </div>
+    <div class="content">
+      <div class="card-title" id="cardTitle">Loading...</div>
+      <div class="answer-box" id="cardAnswer">Loading...</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="nav-left">
+      <button id="prevBtn" class="btn secondary">← Prev</button>
+      <button id="nextBtn" class="btn">Next →</button>
+    </div>
+    <div class="progress-wrap">
+      <div id="progText">1 / 24</div>
+      <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <footer>Material criado para estudo — © InglêsFácilGratuito</footer>
+
+  <script>
+    const flashcards = [
+      {title:'Muscles give bones movement',image:'https://pixabay.com/photos/muscle-anatomy-human-body-fitness-3055660/',answer:`<strong>EN:</strong> Skeletal muscles contract and pull on bones to produce movement at the joints.<em>Muscles generate force by shortening (contraction) which is transmitted to bones via tendons.</em><hr><strong>PT:</strong> Músculos esqueléticos contraem-se e puxam os ossos para produzir movimento nas articulações.<em>Os músculos geram força encurtando-se; essa força é transmitida aos ossos pelos tendões.</em>`},
+      {title:'Ligaments hold bones together and maintain alignment',image:'https://pixabay.com/illustrations/knee-joint-anatomy-ligament-4564346/',answer:`<strong>EN:</strong> Ligaments are strong bands of connective tissue that connect bones to other bones, providing joint stability and preventing excessive or improper movement.<em>They maintain alignment and protect joints from dislocation.</em><hr><strong>PT:</strong> Ligamentos são bandas resistentes que conectam ossos a outros ossos, fornecendo estabilidade e prevenindo movimentos excessivos ou inadequados.<em>Mantêm o alinhamento e protegem as articulações contra deslocamentos.</em>`},
+      {title:'Tendons connect muscles to bones',image:'https://pixabay.com/illustrations/tendon-anatomy-muscle-biology-4121792/',answer:`<strong>EN:</strong> Tendons attach muscles to bones and transmit the force generated by muscle contraction to produce movement.<em>They do not connect bones to each other.</em><hr><strong>PT:</strong> Tendões prendem músculos aos ossos e transmitem a força gerada pela contração para produzir movimento.<em>Não conectam ossos entre si.</em>`},
+      {title:'Summary: How they work together',image:'https://pixabay.com/illustrations/human-body-anatomy-muscles-bones-3182507/',answer:`<strong>EN:</strong> Muscles contract to generate movement; tendons transmit the force to bones; ligaments stabilize the joint ensuring proper alignment.<em>Together they allow controlled, stable movement.</em><hr><strong>PT:</strong> Músculos contraem para gerar movimento; tendões transmitem a força para os ossos; ligamentos estabilizam a articulação garantindo alinhamento adequado.<em>Juntos permitem movimento controlado e estável.</em>`},
+      {title:'Sprain vs Strain',image:'https://pixabay.com/photos/ankle-sprain-injury-pain-sports-4703789/',answer:`<strong>EN:</strong> Sprain = ligament injury. Strain = muscle or tendon injury.<em>Sprains usually involve joint instability; strains affect muscle/tendon function.</em><hr><strong>PT:</strong> Entorse = lesão de ligamento. Distensão = lesão de músculo ou tendão.<em>Entorses envolvem instabilidade articular; distensões afetam a função muscular/tendínea.</em>`},
+      {title:'Tendinopathy (tendon overuse)',image:'https://pixabay.com/photos/elbow-pain-injury-tendinitis-2346233/',answer:`<strong>EN:</strong> Tendinopathy causes pain during movement and localized tenderness due to overuse or degeneration.<em>Gradual loading and proper rehab help recovery.</em><hr><strong>PT:</strong> Tendinopatia causa dor ao mover e sensibilidade localizada por uso excessivo ou degeneração.<em>Carga gradual e reabilitação adequada ajudam na recuperação.</em>`},
+      {title:'Eccentric vs Concentric contraction',image:'https://pixabay.com/photos/fitness-gym-training-muscles-594143/',answer:`<strong>EN:</strong> Concentric = muscle shortens under tension. Eccentric = muscle lengthens under tension.<em>Eccentric loading produces high mechanical load and is important in rehab.</em><hr><strong>PT:</strong> Concêntrica = músculo encurta sob tensão. Excêntrica = músculo alonga sob tensão.<em>O trabalho excêntrico gera alta carga mecânica e é importante na reabilitação.</em>`},
+      {title:'Cartilage — Shock absorber',image:'https://pixabay.com/illustrations/knee-joint-cartilage-anatomy-3036961/',answer:`<strong>EN:</strong> Articular cartilage cushions bone ends and distributes load across the joint.<em>It reduces friction and absorbs shock.</em><hr><strong>PT:</strong> Cartilagem articular amortece as extremidades ósseas e distribui a carga na articulação.<em>Reduz atrito e absorve impacto.</em>`},
+      {title:'Neuromuscular junction',image:'https://pixabay.com/illustrations/synapse-neuron-nerve-cell-286869/',answer:`<strong>EN:</strong> The neuromuscular junction is where motor neurons stimulate muscle fibers to contract.<em>Neurotransmitter release triggers muscle action.</em><hr><strong>PT:</strong> A junção neuromuscular é onde neurônios motores estimulam fibras musculares a contrair.<em>Liberação de neurotransmissores desencadeia a ação muscular.</em>`},
+      {title:'Bursitis',image:'https://pixabay.com/photos/shoulder-pain-injury-bursitis-2448201/',answer:`<strong>EN:</strong> Bursitis is inflammation of a bursa, causing pain and swelling near a joint.<em>Bursae reduce friction; inflammation limits movement.</em><hr><strong>PT:</strong> Bursite é inflamação da bursa, causando dor e inchaço próximo à articulação.<em>As bursas reduzem atrito; inflamação limita o movimento.</em>`},
+      {title:'Immediate first aid: Muscle strain',image:'https://pixabay.com/photos/first-aid-ice-pack-injury-treatment-1626629/',answer:`<strong>EN:</strong> Use RICE (Rest, Ice, Compression, Elevation) initially for acute strains.<em>Follow with graded rehab once pain reduces.</em><hr><strong>PT:</strong> Use RICE (Repouso, Gelo, Compressão, Elevação) inicialmente para distensões agudas.<em>Em seguida, reabilitação gradual quando a dor diminuir.</em>`},
+      {title:'Ligament healing',image:'https://pixabay.com/photos/rehabilitation-therapy-knee-physical-2736931/',answer:`<strong>EN:</strong> Ligaments have limited blood supply and often heal slowly.<em>Rehab focuses on restoring stability and preventing chronic instability.</em><hr><strong>PT:</strong> Ligamentos têm baixa vascularização e frequentemente cicatrizam lentamente.<em>A reabilitação foca em restaurar estabilidade e prevenir instabilidade crônica.</em>`},
+      {title:'Chiropractic role — overview',image:'https://pixabay.com/photos/chiropractic-adjustment-health-5887120/',answer:`<strong>EN:</strong> Chiropractors use manual adjustments to improve joint alignment, reduce nerve irritation, and restore mobility.<em>They often combine soft-tissue work and exercise prescription.</em><hr><strong>PT:</strong> Quiropráticos usam ajustes manuais para melhorar alinhamento articular, reduzir irritação nervosa e restaurar mobilidade.<em>Freqüentemente combinam terapia de tecido mole e prescrição de exercícios.</em>`},
+      {title:'Why alignment matters',image:'https://pixabay.com/photos/spine-posture-chiropractic-health-2858706/',answer:`<strong>EN:</strong> Proper alignment reduces abnormal load on tissues, decreasing pain and wear over time.<em>Malalignment increases risk of overuse injuries.</em><hr><strong>PT:</strong> O alinhamento adequado reduz carga anormal nos tecidos, diminuindo dor e desgaste ao longo do tempo.<em>Desalinhamento aumenta o risco de lesões por uso excessivo.</em>`},
+      {title:'Rehabilitation principles',image:'https://pixabay.com/photos/rehabilitation-therapy-physiotherapy-2736932/',answer:`<strong>EN:</strong> Rehabilitation includes progressive loading, mobility work, and neuromuscular control exercises.<em>Start with controlled movements and gradually increase intensity.</em><hr><strong>PT:</strong> Reabilitação inclui carga progressiva, exercícios de mobilidade e controle neuromuscular.<em>Comece com movimentos controlados e aumente gradualmente a intensidade.</em>`},
+      {title:'Posture & chronic load',image:'https://pixabay.com/photos/posture-back-pain-spine-2654397/',answer:`<strong>EN:</strong> Poor posture over time creates muscle imbalances and joint stress.<em>Ergonomics and strengthening can correct imbalances.</em><hr><strong>PT:</strong> Má postura ao longo do tempo cria desbalanços musculares e estresse nas articulações.<em>Ergonomia e fortalecimento podem corrigir desequilíbrios.</em>`},
+      {title:'Rotator cuff injury',image:'https://pixabay.com/photos/shoulder-anatomy-muscles-tendons-3036966/',answer:`<strong>EN:</strong> Rotator cuff injuries involve tears or inflammation of shoulder tendons, causing pain and weakness.<em>Rehab and, if needed, surgical repair are treatment options.</em><hr><strong>PT:</strong> Lesões do manguito rotador envolvem rupturas ou inflamação dos tendões do ombro, causando dor e fraqueza.<em>Reabilitação e, se necessário, reparo cirúrgico são opções de tratamento.</em>`},
+      {title:'Overuse & prevention',image:'https://pixabay.com/photos/running-man-run-sprint-athlete-5736090/',answer:`<strong>EN:</strong> To prevent tendon injuries, use gradual load progression and allow adequate recovery.<em>Monitor pain and adjust training load accordingly.</em><hr><strong>PT:</strong> Para prevenir lesões de tendão, use progressão gradual de carga e permita recuperação adequada.<em>Monitore a dor e ajuste a carga de treino conforme necessário.</em>`},
+      {title:'Isometric exercises',image:'https://pixabay.com/photos/plank-fitness-training-sport-2587066/',answer:`<strong>EN:</strong> Isometric contractions generate force without changing muscle length and are useful early in rehab.<em>They build stability where movement is painful.</em><hr><strong>PT:</strong> Contrações isométricas geram força sem mudar o comprimento muscular e são úteis no início da reabilitação.<em>Constroem estabilidade onde o movimento é doloroso.</em>`},
+      {title:'Stretch reflex',image:'https://pixabay.com/photos/stretching-fitness-training-3331525/',answer:`<strong>EN:</strong> The stretch reflex (muscle spindle) causes a protective contraction when muscle is rapidly stretched.<em>It helps prevent overstretch injuries.</em><hr><strong>PT:</strong> O reflexo de estiramento (fuso muscular) causa uma contração protetora quando o músculo é esticado rapidamente.<em>Ajuda a prevenir lesões por estiramento excessivo.</em>`},
+      {title:'Enthesis — tendon insertion',image:'https://pixabay.com/illustrations/tendon-anatomy-muscle-skeleton-5414211/',answer:`<strong>EN:</strong> The enthesis is the site where tendon attaches to bone.<em>It can be a pain source in overuse conditions.</em><hr><strong>PT:</strong> A êntese é o local onde o tendão se insere no osso.<em>Pode ser fonte de dor em condições de uso excessivo.</em>`},
+      {title:'Bilateral balance & symmetry',image:'https://pixabay.com/photos/yoga-balance-sport-fitness-3053487/',answer:`<strong>EN:</strong> Balanced strength and flexibility between sides reduces injury risk.<em>Assess and train both sides to correct imbalances.</em><hr><strong>PT:</strong> Força e flexibilidade equilibradas entre os lados reduzem o risco de lesões.<em>Avalie e treine ambos os lados para corrigir desequilíbrios.</em>`},
+      {title:'When to seek professional help',image:'https://pixabay.com/photos/doctor-patient-consultation-563428/',answer:`<strong>EN:</strong> Seek assessment if pain is severe, persistent, or associated with swelling, numbness, or instability.<em>Professionals can diagnose and guide treatment or refer for imaging.</em><hr><strong>PT:</strong> Procure avaliação se a dor for intensa, persistente ou associada a inchaço, dormência ou instabilidade.<em>Profissionais podem diagnosticar, orientar o tratamento ou solicitar exames de imagem.</em>`},
+      {title:'Practical tips for daily care',image:'https://pixabay.com/photos/fitness-sport-training-exercise-5954727/',answer:`<strong>EN:</strong> Maintain good posture, warm up before activity, progress training gradually, and rest when needed.<em>Small daily habits reduce long-term risk.</em><hr><strong>PT:</strong> Mantenha boa postura, aqueça antes da atividade, progrida o treino gradualmente e descanse quando necessário.<em>Pequenos hábitos diários reduzem o risco a longo prazo.</em>`}
+    ];
+
+    // total count and navigation
+    const total = flashcards.length;
+    let index = 0;
+
+    const cardImage = document.getElementById('cardImage');
+    const cardTitle = document.getElementById('cardTitle');
+    const cardAnswer = document.getElementById('cardAnswer');
+    const progText = document.getElementById('progText');
+    const progFill = document.getElementById('progressFill');
+
+    function loadCard(i){
+      const c = flashcards[i];
+      cardImage.src = c.image;
+      cardTitle.textContent = c.title;
+      cardAnswer.innerHTML = c.answer;
+      progText.textContent = `${i+1} / ${total}`;
+      progFill.style.width = `${Math.round(((i+1)/total)*100)}%`;
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', ()=>{
+      index = (index - 1 + total) % total;
+      loadCard(index);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', ()=>{
+      index = (index + 1) % total;
+      loadCard(index);
+    });
+
+    // Video hide/show toggle
+    const toggleBtn = document.getElementById('toggleVideoBtn');
+    const videoFrame = document.getElementById('videoFrame');
+    let videoVisible = true;
+    toggleBtn.addEventListener('click', ()=>{
+      videoVisible = !videoVisible;
+      videoFrame.style.display = videoVisible ? 'block' : 'none';
+      toggleBtn.textContent = videoVisible ? '🎬 Hide Video' : '🎬 Show Video';
+    });
+
+    // Load first card
+    loadCard(index);
+
+    console.log('✅ Flashcards loaded successfully. Replace the image URLs or YouTube link as desired.');
+  </script>
+</body>
+</html>
+
+
+
+
+
